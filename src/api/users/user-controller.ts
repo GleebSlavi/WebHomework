@@ -16,14 +16,11 @@ usersController.post('/create', async (req, res) => {
         username: req.body.username,
     });
 
-    console.log(newUser);
 
     const validation = newUser.validateSync();
     if (validation) {
         return res.status(400).json(validation);
     }
-
-    console.log(newUser);
 
     try {
         await newUser.save();
@@ -53,4 +50,30 @@ usersController.get('/', async (req, res) => {
     } catch (error) {
         return res.status(404).json({ message: error })
     }
-})
+});
+
+// Delete user by username
+usersController.delete('/:username', async (req, res) => {
+    const userUsername = req.params.username;
+
+    try {
+        const deletedUser = await UserModel.findOneAndDelete({ username: userUsername });
+        return res.status(200).json(deletedUser);
+    } catch (error) {
+        return res.status(404).json({ message: error });
+    }
+});
+
+// Change password by username
+usersController.patch('/password/:username', async (req, res) => {
+    const userUsername = req.params.username;
+
+    try {
+        const updatedUser = await UserModel.findOneAndUpdate({ username: userUsername },
+            { $set: { password: req.body.password } });
+            return res.status(200).json(updatedUser);
+    } catch (error) {
+        return res.status(404).json({ message: error });
+    }
+});
+

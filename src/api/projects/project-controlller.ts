@@ -22,39 +22,39 @@ projectsController.post('/create', async (req, res) => {
     try {
         await newProject.save();
         return res.status(201).json(newProject);
-    } catch (err) {
-        return res.status(500).json({ error: err });
+    } catch (error) {
+        return res.status(500).json({ message: error });
     }
 });
 
 // Get all projects
-projectsController.get('/', async (req, res) => {
+projectsController.get('/getAll', async (req, res) => {
     try {
         const allProjects = await ProjectModel.find();
         return res.status(200).json(allProjects);
-    } catch (err) {
-        return res.status(404).json(err);
+    } catch (error) {
+        return res.status(404).json({ message: error });
     }
 });
 
 // Get project by name
-projectsController.get('/:projectName', async (req, res) => {
-    const projName = req.params.projectName;
-
-    const project = await ProjectModel.findOne({ projectName: projName });
-    if (!project) {
-        return res.status(404).json({ error: 'No such project' });
+projectsController.get('/getByName/:projectName', async (req, res) => {
+    try {
+        const project = await ProjectModel.findOne({ projectName: req.params.projectName });
+        if (!project) {
+            return res.status(404).json({ error: 'No such project' });
+        }
+        
+        return res.status(200).json(project);
+    } catch (error) {
+        return res.status(404).json({ message: error });
     }
-
-    return res.status(200).json(project.toJSON());
 });
 
 // Get projects by status
-projectsController.get('/:status', async (req, res) => {
-    const projectStatus = req.params.status;
-
+projectsController.get('/getByStatus/:status', async (req, res) => {
     try {
-        const projects = await ProjectModel.find({ status: projectStatus });
+        const projects = await ProjectModel.find({ status: req.params.status });
         return res.status(200).json(projects);
     } catch (error) {
         return res.status(404).json({ message: error });
@@ -62,11 +62,9 @@ projectsController.get('/:status', async (req, res) => {
 })
 
 // Update project status by name
-projectsController.patch('/status/:projectName', async (req, res) => {
-    const projName = req.params.projectName;
-    
+projectsController.patch('/updateStatusByName/:projectName', async (req, res) => {
     try {
-        const updatedProject = await ProjectModel.updateOne({ projectName: projName }, 
+        const updatedProject = await ProjectModel.updateOne({ projectName: req.params.projectName }, 
             { $set: { status: req.body.status } });
         return res.status(200).json(updatedProject); 
     } catch (error) {
@@ -75,11 +73,9 @@ projectsController.patch('/status/:projectName', async (req, res) => {
 });
 
 // Delete a project by name
-projectsController.delete('/:projectName', async (req, res) => {
-    const projName = req.params.projectName;
-
+projectsController.delete('/deleteByName/:projectName', async (req, res) => {
     try {
-        const deletedProject = await ProjectModel.findOneAndDelete({ projectName: projName });
+        const deletedProject = await ProjectModel.findOneAndDelete({ projectName: req.params.projectName });
         return res.status(200).json(deletedProject);
     } catch (error) {
         return res.status(404).json({ message: error });

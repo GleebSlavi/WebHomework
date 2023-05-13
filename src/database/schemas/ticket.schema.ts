@@ -7,11 +7,11 @@ export const TicketSchema = new Schema({
         required: true,
     },
     projectId: {
-        type: Schema.Types.String,
+        type: Schema.Types.ObjectId,
         required: true,
     },
     assignedTo: {
-        type: Schema.Types.String,
+        type: Schema.Types.ObjectId,
         default: null,
     },
     description: {
@@ -24,7 +24,7 @@ export const TicketSchema = new Schema({
     },
     updateDate: {
         type: Schema.Types.Date,
-        default: null,
+        default: new Date(),
     },
     status: {
         type: Schema.Types.String,

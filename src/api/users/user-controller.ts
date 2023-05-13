@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import mongoose from 'mongoose';
 import { UserModel } from '../../database/models/user.model';
+import { hashSync, genSaltSync } from 'bcrypt';
 
 export const usersController = Router();
 
@@ -12,7 +13,7 @@ usersController.post('/create', async (req, res) => {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email: req.body.email,
-        password: req.body.password,
+        password: hashSync(req.body.password, genSaltSync()),
         username: req.body.username,
     });
 
@@ -25,25 +26,28 @@ usersController.post('/create', async (req, res) => {
     try {
         await newUser.save();
         return res.status(201).json(newUser);
-    } catch (err) {
-        return res.status(500).json({ error: err });
+    } catch (error) {
+        return res.status(500).json({ message: error });
     }
 });
 
 // Get user by username
-usersController.get('/:username', async (req, res) => {
-    const userUsername = req.params.username;
+usersController.get('/getByUsername/:username', async (req, res) => {
+    try {
+        const user = await UserModel.findOne({ username: req.params.username });
+        if (!user) {
+            return res.status(404).json({ message: 'No such user'} );
+        }
 
-    const user = await UserModel.findOne({ username: userUsername });
-    if (!user) {
-        return res.status(404).json({ error: 'No such user'} );
+        return res.status(200).json(user);
+    } catch (error) {
+        return res.status(404).json({ message: error });
     }
 
-    return res.status(200).json(user.toJSON());
 })
 
 // Get all users
-usersController.get('/', async (req, res) => {
+usersController.get('/getAll', async (req, res) => {
     try {
         const allUsers = await UserModel.find();
         return res.status(200).json(allUsers);
@@ -53,11 +57,9 @@ usersController.get('/', async (req, res) => {
 });
 
 // Delete user by username
-usersController.delete('/:username', async (req, res) => {
-    const userUsername = req.params.username;
-
+usersController.delete('/deleteByUsername/:username', async (req, res) => {
     try {
-        const deletedUser = await UserModel.findOneAndDelete({ username: userUsername });
+        const deletedUser = await UserModel.findOneAndDelete({ username: req.params.username });
         return res.status(200).json(deletedUser);
     } catch (error) {
         return res.status(404).json({ message: error });
@@ -65,12 +67,10 @@ usersController.delete('/:username', async (req, res) => {
 });
 
 // Change password by username
-usersController.patch('/password/:username', async (req, res) => {
-    const userUsername = req.params.username;
-
+usersController.patch('/updatePasswordByUsername/:username', async (req, res) => {
     try {
-        const updatedUser = await UserModel.findOneAndUpdate({ username: userUsername },
-            { $set: { password: req.body.password } });
+        const updatedUser = await UserModel.findOneAndUpdate({ username: req.params.username },
+            { $set: { password: hashSync(req.body.password, genSaltSync()) } });
             return res.status(200).json(updatedUser);
     } catch (error) {
         return res.status(404).json({ message: error });

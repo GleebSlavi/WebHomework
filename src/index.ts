@@ -5,20 +5,17 @@ import { connectAPI } from './api/connect';
 
 config();
 
-const mongoUri = process.env.DB_CONNECTION_STRING;
-const port = process.env.PORT;
-
 const app: Application = express();
 
 app.use(json());
 
 connectAPI(app, '/api');
 
-app.listen(port, () => {
-    connect(mongoUri as string, {
+app.listen(process.env.PORT, () => {
+    connect(process.env.DB_CONNECTION_STRING as string, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
     } as ConnectOptions)
-    .then(() => console.log(`Server listening on port ${port}`))
-    .catch(error => console.log(error));
+    .then(() => console.log(`Server listening on port ${process.env.PORT}`))
+    .catch(error => console.log(error + "from error"));
 })

@@ -44,7 +44,7 @@ ticketsController.get('/getByStatus/:status', async (req, res) => {
 });
 
 // Get all tickets
-ticketsController.get('/getAll', async (req, res) => {
+ticketsController.get('/', async (req, res) => {
     try {
         const tickets = TicketModel.find();
         return res.status(200).json(tickets);

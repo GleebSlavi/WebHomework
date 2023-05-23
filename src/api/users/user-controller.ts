@@ -47,7 +47,7 @@ usersController.get('/getByUsername/:username', async (req, res) => {
 })
 
 // Get all users
-usersController.get('/getAll', async (req, res) => {
+usersController.get('/', async (req, res) => {
     try {
         const allUsers = await UserModel.find();
         return res.status(200).json(allUsers);

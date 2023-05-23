@@ -28,7 +28,7 @@ projectsController.post('/create', async (req, res) => {
 });
 
 // Get all projects
-projectsController.get('/getAll', async (req, res) => {
+projectsController.get('/', async (req, res) => {
     try {
         const allProjects = await ProjectModel.find();
         return res.status(200).json(allProjects);
